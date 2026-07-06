@@ -1,12 +1,10 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
-import { initDB, query, get, run } from "./db.js";
+import { initDB, query, get, run } from "./db-neon.js";
 
-type Env = { Bindings: { DB: D1Database } };
+const app = new OpenAPIHono();
 
-const app = new OpenAPIHono<Env>();
-
-app.use("*", async (c, next) => {
-  initDB(c.env);
+app.use("*", async (_c, next) => {
+  initDB();
   await next();
 });
 
@@ -386,7 +384,7 @@ app.openapi(createAppointment, async (c) => {
 
   const result = await run(
     `INSERT INTO appointments (identifier, client_id, staff_id, scheduled_date, start_time, end_time, total_price, notes, is_recurring, recurrence_interval)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
     [identifier, body.client_id, body.staff_id ?? null, body.scheduled_date,
     startTime, endTime, totalPrice,
     body.notes || "", body.is_recurring || 0, body.recurrence_interval || ""],
@@ -604,7 +602,7 @@ const createClient = createRoute({
 app.openapi(createClient, async (c) => {
   const body = c.req.valid("json");
   const result = await run(
-    "INSERT INTO clients (name, email, phone, notes) VALUES (?, ?, ?, ?)",
+    "INSERT INTO clients (name, email, phone, notes) VALUES (?, ?, ?, ?) RETURNING id",
     [body.name, body.email || "", body.phone || "", body.notes || ""],
   );
   const client = await get<Record<string, unknown>>("SELECT * FROM clients WHERE id = ?", [result.lastInsertRowid]);
@@ -709,7 +707,7 @@ const createStaff = createRoute({
 app.openapi(createStaff, async (c) => {
   const body = c.req.valid("json");
   const result = await run(
-    "INSERT INTO staff (name, email, phone, title, color) VALUES (?, ?, ?, ?, ?)",
+    "INSERT INTO staff (name, email, phone, title, color) VALUES (?, ?, ?, ?, ?) RETURNING id",
     [body.name, body.email || "", body.phone || "", body.title || "", body.color || "#7c3aed"],
   );
   const staff = await get<Record<string, unknown>>("SELECT * FROM staff WHERE id = ?", [result.lastInsertRowid]);
@@ -797,7 +795,7 @@ const createService = createRoute({
 app.openapi(createService, async (c) => {
   const body = c.req.valid("json");
   const result = await run(
-    "INSERT INTO services (name, description, duration, price, color, category) VALUES (?, ?, ?, ?, ?, ?)",
+    "INSERT INTO services (name, description, duration, price, color, category) VALUES (?, ?, ?, ?, ?, ?) RETURNING id",
     [body.name, body.description || "", body.duration || 60, body.price || 0, body.color || "#6b7280", body.category || ""],
   );
   const service = await get<Record<string, unknown>>("SELECT * FROM services WHERE id = ?", [result.lastInsertRowid]);
@@ -954,7 +952,7 @@ const createProduct = createRoute({
 app.openapi(createProduct, async (c) => {
   const body = c.req.valid("json");
   const result = await run(
-    "INSERT INTO products (name, brand, category, sku, price, cost, stock, low_stock_alert) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+    "INSERT INTO products (name, brand, category, sku, price, cost, stock, low_stock_alert) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id",
     [body.name, body.brand || "", body.category || "", body.sku || "",
     body.price || 0, body.cost || 0, body.stock || 0, body.low_stock_alert || 5],
   );
