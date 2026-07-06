@@ -240,7 +240,7 @@ app.openapi(listAppointments, async (c) => {
     [...params, limit, offset],
   );
 
-  return c.json({ appointments, total: total?.count || 0 }, 200);
+  return c.json({ appointments, total: total?.count || 0 } as any, 200);
 });
 
 // Calendar view - appointments for a date range
