@@ -5,25 +5,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { PhotoUpload } from "./photo-upload";
+import type { Product } from "../types";
 
-export function CreateProduct({ onClose }: { onClose: () => void }) {
-  const { addProduct, setError } = useApp();
-  const [name, setName] = useState("");
-  const [brand, setBrand] = useState("");
-  const [category, setCategory] = useState("");
-  const [sku, setSku] = useState("");
-  const [photoUrl, setPhotoUrl] = useState("");
-  const [price, setPrice] = useState("0");
-  const [cost, setCost] = useState("0");
-  const [stock, setStock] = useState("0");
-  const [lowStockAlert, setLowStockAlert] = useState("5");
+export function EditProduct({ product, onClose }: { product: Product; onClose: () => void }) {
+  const { updateProduct, setError } = useApp();
+  const [name, setName] = useState(product.name);
+  const [brand, setBrand] = useState(product.brand);
+  const [category, setCategory] = useState(product.category);
+  const [sku, setSku] = useState(product.sku);
+  const [photoUrl, setPhotoUrl] = useState(product.photo_url);
+  const [price, setPrice] = useState(String(product.price));
+  const [cost, setCost] = useState(String(product.cost));
+  const [stock, setStock] = useState(String(product.stock));
+  const [lowStockAlert, setLowStockAlert] = useState(String(product.low_stock_alert));
   const [saving, setSaving] = useState(false);
 
   const handleSubmit = async () => {
     if (!name.trim()) { setError("Nome é obrigatório"); return; }
     setSaving(true);
     try {
-      await addProduct({
+      await updateProduct(product.id, {
         name: name.trim(), brand, category, sku,
         photo_url: photoUrl,
         price: parseFloat(price) || 0,
@@ -43,14 +44,14 @@ export function CreateProduct({ onClose }: { onClose: () => void }) {
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Adicionar Produto</DialogTitle>
+          <DialogTitle>Editar {product.name}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           <PhotoUpload name={name || "?"} url={photoUrl} onUploaded={setPhotoUrl} shape="square" />
 
           <div className="space-y-1.5">
             <Label>Nome *</Label>
-            <Input value={name} onInput={(e) => setName((e.target as HTMLInputElement).value)} placeholder="Nome do produto" />
+            <Input value={name} onInput={(e) => setName((e.target as HTMLInputElement).value)} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
@@ -59,12 +60,12 @@ export function CreateProduct({ onClose }: { onClose: () => void }) {
             </div>
             <div className="space-y-1.5">
               <Label>Categoria</Label>
-              <Input value={category} onInput={(e) => setCategory((e.target as HTMLInputElement).value)} placeholder="ex: Cuidados com o Cabelo" />
+              <Input value={category} onInput={(e) => setCategory((e.target as HTMLInputElement).value)} />
             </div>
           </div>
           <div className="space-y-1.5">
             <Label>SKU</Label>
-            <Input value={sku} onInput={(e) => setSku((e.target as HTMLInputElement).value)} placeholder="Opcional" />
+            <Input value={sku} onInput={(e) => setSku((e.target as HTMLInputElement).value)} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
@@ -89,7 +90,7 @@ export function CreateProduct({ onClose }: { onClose: () => void }) {
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button disabled={saving} onClick={handleSubmit}>{saving ? "Salvando..." : "Adicionar Produto"}</Button>
+          <Button disabled={saving} onClick={handleSubmit}>{saving ? "Salvando..." : "Salvar"}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

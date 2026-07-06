@@ -4,6 +4,12 @@ CREATE TABLE IF NOT EXISTS clients (
   name TEXT NOT NULL,
   email TEXT DEFAULT '',
   phone TEXT DEFAULT '',
+  photo_url TEXT DEFAULT '',
+  birth_date TEXT DEFAULT '',
+  cpf TEXT DEFAULT '',
+  address TEXT DEFAULT '',
+  instagram TEXT DEFAULT '',
+  referral_source TEXT DEFAULT '',
   notes TEXT DEFAULT '',
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
@@ -15,6 +21,11 @@ CREATE TABLE IF NOT EXISTS staff (
   name TEXT NOT NULL,
   email TEXT DEFAULT '',
   phone TEXT DEFAULT '',
+  photo_url TEXT DEFAULT '',
+  bio TEXT DEFAULT '',
+  specialties TEXT DEFAULT '',
+  commission_rate DOUBLE PRECISION DEFAULT 0,
+  hire_date TEXT DEFAULT '',
   title TEXT DEFAULT '',
   color TEXT NOT NULL DEFAULT '#7c3aed',
   active INTEGER NOT NULL DEFAULT 1,
@@ -87,6 +98,7 @@ CREATE TABLE IF NOT EXISTS products (
   brand TEXT DEFAULT '',
   category TEXT DEFAULT '',
   sku TEXT DEFAULT '',
+  photo_url TEXT DEFAULT '',
   price DOUBLE PRECISION NOT NULL DEFAULT 0,
   cost DOUBLE PRECISION NOT NULL DEFAULT 0,
   stock INTEGER NOT NULL DEFAULT 0,
@@ -145,6 +157,20 @@ SELECT name, brand, category, price, cost, stock FROM (VALUES
   ('Essential Oil Set', 'AromaPlus', 'Wellness', 45.99, 22.00, 12)
 ) AS v(name, brand, category, price, cost, stock)
 WHERE NOT EXISTS (SELECT 1 FROM products WHERE name = v.name);
+
+-- Alter existing tables for migration compatibility
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS photo_url TEXT DEFAULT '';
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS birth_date TEXT DEFAULT '';
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS cpf TEXT DEFAULT '';
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS address TEXT DEFAULT '';
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS instagram TEXT DEFAULT '';
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS referral_source TEXT DEFAULT '';
+ALTER TABLE staff ADD COLUMN IF NOT EXISTS photo_url TEXT DEFAULT '';
+ALTER TABLE staff ADD COLUMN IF NOT EXISTS bio TEXT DEFAULT '';
+ALTER TABLE staff ADD COLUMN IF NOT EXISTS specialties TEXT DEFAULT '';
+ALTER TABLE staff ADD COLUMN IF NOT EXISTS commission_rate DOUBLE PRECISION DEFAULT 0;
+ALTER TABLE staff ADD COLUMN IF NOT EXISTS hire_date TEXT DEFAULT '';
+ALTER TABLE products ADD COLUMN IF NOT EXISTS photo_url TEXT DEFAULT '';
 
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_appointments_client ON appointments(client_id);

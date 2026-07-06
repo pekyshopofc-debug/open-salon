@@ -6,28 +6,29 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { PhotoUpload } from "./photo-upload";
+import type { Staff } from "../types";
 
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#ef4444", "#14b8a6", "#f97316"];
 
-export function CreateStaff({ onClose }: { onClose: () => void }) {
-  const { addStaff, setError } = useApp();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [photoUrl, setPhotoUrl] = useState("");
-  const [bio, setBio] = useState("");
-  const [specialties, setSpecialties] = useState("");
-  const [commissionRate, setCommissionRate] = useState("0");
-  const [hireDate, setHireDate] = useState("");
-  const [title, setTitle] = useState("");
-  const [color, setColor] = useState(COLORS[0]);
+export function EditStaff({ staff, onClose }: { staff: Staff; onClose: () => void }) {
+  const { updateStaff, setError } = useApp();
+  const [name, setName] = useState(staff.name);
+  const [email, setEmail] = useState(staff.email);
+  const [phone, setPhone] = useState(staff.phone);
+  const [photoUrl, setPhotoUrl] = useState(staff.photo_url);
+  const [bio, setBio] = useState(staff.bio);
+  const [specialties, setSpecialties] = useState(staff.specialties);
+  const [commissionRate, setCommissionRate] = useState(String(staff.commission_rate));
+  const [hireDate, setHireDate] = useState(staff.hire_date);
+  const [title, setTitle] = useState(staff.title);
+  const [color, setColor] = useState(staff.color);
   const [saving, setSaving] = useState(false);
 
   const handleSubmit = async () => {
     if (!name.trim()) { setError("Nome é obrigatório"); return; }
     setSaving(true);
     try {
-      await addStaff({
+      await updateStaff(staff.id, {
         name: name.trim(),
         email, phone,
         photo_url: photoUrl,
@@ -48,18 +49,18 @@ export function CreateStaff({ onClose }: { onClose: () => void }) {
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Adicionar Membro da Equipe</DialogTitle>
+          <DialogTitle>Editar {staff.name}</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           <PhotoUpload name={name || "?"} color={color} url={photoUrl} onUploaded={setPhotoUrl} />
 
           <div className="space-y-1.5">
             <Label>Nome *</Label>
-            <Input value={name} onInput={(e) => setName((e.target as HTMLInputElement).value)} placeholder="Nome completo" />
+            <Input value={name} onInput={(e) => setName((e.target as HTMLInputElement).value)} />
           </div>
           <div className="space-y-1.5">
             <Label>Cargo / Função</Label>
-            <Input value={title} onInput={(e) => setTitle((e.target as HTMLInputElement).value)} placeholder="ex: Estilista Sênior" />
+            <Input value={title} onInput={(e) => setTitle((e.target as HTMLInputElement).value)} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -75,11 +76,11 @@ export function CreateStaff({ onClose }: { onClose: () => void }) {
 
           <div className="space-y-1.5">
             <Label>Biografia</Label>
-            <Textarea rows={2} value={bio} onInput={(e) => setBio((e.target as HTMLTextAreaElement).value)} placeholder="Breve descrição profissional" />
+            <Textarea rows={2} value={bio} onInput={(e) => setBio((e.target as HTMLTextAreaElement).value)} />
           </div>
           <div className="space-y-1.5">
             <Label>Especialidades</Label>
-            <Input value={specialties} onInput={(e) => setSpecialties((e.target as HTMLInputElement).value)} placeholder="ex: Cortes, Colorimetria, Terapias" />
+            <Input value={specialties} onInput={(e) => setSpecialties((e.target as HTMLInputElement).value)} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -109,7 +110,7 @@ export function CreateStaff({ onClose }: { onClose: () => void }) {
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button disabled={saving} onClick={handleSubmit}>{saving ? "Salvando..." : "Adicionar Equipe"}</Button>
+          <Button disabled={saving} onClick={handleSubmit}>{saving ? "Salvando..." : "Salvar"}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Pagination } from "./pagination";
 import { CreateClient } from "./create-client";
+import { Avatar } from "./avatar";
 
 export function ClientList() {
   const { clients, clientsPag, setClientsPage, clientsSearch, setClientsSearch, deleteClient, navigate } = useApp();
@@ -33,6 +34,7 @@ export function ClientList() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-10" />
                 <TableHead>Nome</TableHead>
                 <TableHead className="w-44">E-mail</TableHead>
                 <TableHead className="w-28">Telefone</TableHead>
@@ -42,10 +44,13 @@ export function ClientList() {
             </TableHeader>
             <TableBody>
               {clients.length === 0 && (
-                <TableRow><TableCell colSpan={5} className="py-8 text-center text-muted-foreground">Nenhum cliente encontrado</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} className="py-8 text-center text-muted-foreground">Nenhum cliente encontrado</TableCell></TableRow>
               )}
               {clients.map((c) => (
                 <TableRow key={c.id} className="cursor-pointer" onClick={() => navigate(`/clients/${c.id}`)}>
+                  <TableCell>
+                    <Avatar name={c.name} photoUrl={c.photo_url} size="sm" />
+                  </TableCell>
                   <TableCell className="font-medium">{c.name}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{c.email || "—"}</TableCell>
                   <TableCell className="text-sm">{c.phone || "—"}</TableCell>

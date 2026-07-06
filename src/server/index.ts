@@ -1,6 +1,7 @@
 import { Hono } from "hono";
+import { z } from "zod";
 
-// Lazy database initialization — will be set on first request
+// ── Lazy database initialization ──
 let queryFn: ((sql: string, params?: any[]) => Promise<any[]>) | null = null;
 let getFn: ((sql: string, params?: any[]) => Promise<any>) | null = null;
 let runFn: ((sql: string, params?: any[]) => Promise<{ lastInsertRowid: number; changes: number }>) | null = null;
@@ -24,7 +25,6 @@ async function ensureDb() {
 
 const app = new Hono();
 
-// Initialize database on first request
 app.use("*", async (_c, next) => {
   await ensureDb();
   await next();
@@ -51,6 +51,96 @@ async function r(sql: string, params?: any[]): Promise<{ lastInsertRowid: number
   if (!runFn) return { lastInsertRowid: 0, changes: 0 };
   try { return await runFn(sql, params); } catch { return { lastInsertRowid: 0, changes: 0 }; }
 }
+
+// ── SQL injection protection: whitelist of allowed columns per table ──
+const ALLOWED_COLUMNS: Record<string, string[]> = {
+  clients: ["name", "email", "phone", "photo_url", "birth_date", "cpf", "address", "instagram", "referral_source", "notes"],
+  staff: ["name", "email", "phone", "photo_url", "bio", "specialties", "commission_rate", "hire_date", "title", "color", "active"],
+  services: ["name", "description", "duration", "price", "color", "category", "active"],
+  products: ["name", "brand", "category", "sku", "photo_url", "price", "cost", "stock", "low_stock_alert"],
+  appointments: ["client_id", "staff_id", "status", "scheduled_date", "start_time", "end_time", "total_price", "notes", "is_recurring", "recurrence_interval"],
+};
+
+function buildUpdate(table: string, body: Record<string, unknown>): { sets: string[]; params: unknown[] } {
+  const allowed = ALLOWED_COLUMNS[table] || [];
+  const sets: string[] = [];
+  const params: unknown[] = [];
+  for (const [key, val] of Object.entries(body)) {
+    if (val !== undefined && allowed.includes(key)) {
+      sets.push(`${key} = $${params.length + 1}`);
+      params.push(val);
+    }
+  }
+  return { sets, params };
+}
+
+// ── Zod schemas ──
+const ClientPostSchema = z.object({
+  name: z.string().min(1, "Nome é obrigatório"),
+  email: z.string().optional(),
+  phone: z.string().optional(),
+  photo_url: z.string().optional(),
+  birth_date: z.string().optional(),
+  cpf: z.string().optional(),
+  address: z.string().optional(),
+  instagram: z.string().optional(),
+  referral_source: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+const StaffPostSchema = z.object({
+  name: z.string().min(1, "Nome é obrigatório"),
+  email: z.string().optional(),
+  phone: z.string().optional(),
+  photo_url: z.string().optional(),
+  bio: z.string().optional(),
+  specialties: z.string().optional(),
+  commission_rate: z.number().optional(),
+  hire_date: z.string().optional(),
+  title: z.string().optional(),
+  color: z.string().optional(),
+  active: z.number().optional(),
+});
+
+const ProductPostSchema = z.object({
+  name: z.string().min(1, "Nome é obrigatório"),
+  brand: z.string().optional(),
+  category: z.string().optional(),
+  sku: z.string().optional(),
+  photo_url: z.string().optional(),
+  price: z.number().optional(),
+  cost: z.number().optional(),
+  stock: z.number().optional(),
+  low_stock_alert: z.number().optional(),
+});
+
+// ── File Upload ──
+app.post("/api/upload", async (c) => {
+  const formData = await c.req.formData();
+  const file = formData.get("file") as File | null;
+  if (!file) return c.json({ error: "Nenhum arquivo enviado" }, 400);
+
+  const buffer = await file.arrayBuffer();
+
+  // Vercel Blob when token is available
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    try {
+      const { put } = await import("@vercel/blob");
+      const ext = file.name.split(".").pop() || "jpg";
+      const blob = await put(`uploads/${Date.now()}.${ext}`, buffer, {
+        access: "public",
+        contentType: file.type,
+      });
+      return c.json({ url: blob.url });
+    } catch {
+      // fall through to base64 fallback
+    }
+  }
+
+  // Fallback: base64 data-URL
+  const base64 = Buffer.from(buffer).toString("base64");
+  return c.json({ url: `data:${file.type};base64,${base64}` });
+});
 
 // ── Stats ──
 app.get("/api/stats", async (c) => {
@@ -106,7 +196,7 @@ app.get("/api/appointments", async (c) => {
   const status = c.req.query("status");
   const date = c.req.query("date");
   const staffId = c.req.query("staff_id");
-  if (search) { where += " AND (a.identifier LIKE $1 OR cl.name LIKE $2)"; const s = `%${search}%`; params.push(s, s); }
+  if (search) { where += " AND (a.identifier ILIKE $1 OR cl.name ILIKE $2)"; const s = `%${search}%`; params.push(s, s); }
   if (status) { where += ` AND a.status = $${params.length + 1}`; params.push(status); }
   if (date) { where += ` AND a.scheduled_date = $${params.length + 1}`; params.push(date); }
   if (staffId) { where += ` AND a.staff_id = $${params.length + 1}`; params.push(staffId); }
@@ -178,13 +268,9 @@ app.post("/api/appointments", async (c) => {
 app.put("/api/appointments/:id", async (c) => {
   const { id } = c.req.param();
   const body: any = await c.req.json();
-  const sets: string[] = [];
-  const params: any[] = [];
-  for (const [key, val] of Object.entries(body)) {
-    if (val !== undefined) { sets.push(`${key} = $${params.length + 1}`); params.push(val); }
-  }
+  const { sets, params } = buildUpdate("appointments", body);
   if (sets.length > 0) {
-    sets.push(`updated_at = NOW()`);
+    sets.push("updated_at = NOW()");
     await r(`UPDATE appointments SET ${sets.join(", ")} WHERE id = $${params.length + 1}`, [...params, id]);
   }
   return c.json({ ok: true });
@@ -219,7 +305,7 @@ app.get("/api/clients", async (c) => {
   const search = c.req.query("search");
   let where = "WHERE 1=1";
   const params: any[] = [];
-  if (search) { where += " AND (c.name LIKE $1 OR c.email LIKE $2 OR c.phone LIKE $3)"; const s = `%${search}%`; params.push(s, s, s); }
+  if (search) { where += " AND (c.name ILIKE $1 OR c.email ILIKE $2 OR c.phone ILIKE $3)"; const s = `%${search}%`; params.push(s, s, s); }
   const total = (await g(`SELECT COUNT(*) as count FROM clients c ${where}`, params))?.count || 0;
   const clients = await q(
     `SELECT c.*, (SELECT COUNT(*) FROM appointments WHERE client_id = c.id) as appointment_count
@@ -247,7 +333,16 @@ app.get("/api/clients/:id", async (c) => {
 
 app.post("/api/clients", async (c) => {
   const body: any = await c.req.json();
-  const result = await r("INSERT INTO clients (name, email, phone, notes) VALUES ($1, $2, $3, $4) RETURNING id", [body.name, body.email || "", body.phone || "", body.notes || ""]);
+  const parsed = ClientPostSchema.safeParse(body);
+  if (!parsed.success) {
+    return c.json({ error: parsed.error.errors.map(e => e.message).join(", ") }, 400);
+  }
+  const data = parsed.data;
+  const result = await r(
+    `INSERT INTO clients (name, email, phone, photo_url, birth_date, cpf, address, instagram, referral_source, notes)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id`,
+    [data.name, data.email ?? "", data.phone ?? "", data.photo_url ?? "", data.birth_date ?? "", data.cpf ?? "", data.address ?? "", data.instagram ?? "", data.referral_source ?? "", data.notes ?? ""],
+  );
   const client = await g("SELECT * FROM clients WHERE id = $1", [result.lastInsertRowid]);
   return c.json({ client }, 201);
 });
@@ -255,11 +350,11 @@ app.post("/api/clients", async (c) => {
 app.put("/api/clients/:id", async (c) => {
   const { id } = c.req.param();
   const body: any = await c.req.json();
-  const sets: string[] = [];
-  const params: any[] = [];
-  for (const [key, val] of Object.entries(body)) {
-    if (val !== undefined) { sets.push(`${key} = $${params.length + 1}`); params.push(val); }
+  const parsed = ClientPostSchema.partial().safeParse(body);
+  if (!parsed.success) {
+    return c.json({ error: parsed.error.errors.map(e => e.message).join(", ") }, 400);
   }
+  const { sets, params } = buildUpdate("clients", parsed.data as Record<string, unknown>);
   if (sets.length > 0) { sets.push("updated_at = NOW()"); await r(`UPDATE clients SET ${sets.join(", ")} WHERE id = $${params.length + 1}`, [...params, id]); }
   return c.json({ ok: true });
 });
@@ -283,7 +378,16 @@ app.get("/api/staff/all", async (c) => {
 
 app.post("/api/staff", async (c) => {
   const body: any = await c.req.json();
-  const result = await r("INSERT INTO staff (name, email, phone, title, color) VALUES ($1, $2, $3, $4, $5) RETURNING id", [body.name, body.email || "", body.phone || "", body.title || "", body.color || "#7c3aed"]);
+  const parsed = StaffPostSchema.safeParse(body);
+  if (!parsed.success) {
+    return c.json({ error: parsed.error.errors.map(e => e.message).join(", ") }, 400);
+  }
+  const data = parsed.data;
+  const result = await r(
+    `INSERT INTO staff (name, email, phone, photo_url, bio, specialties, commission_rate, hire_date, title, color, active)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id`,
+    [data.name, data.email ?? "", data.phone ?? "", data.photo_url ?? "", data.bio ?? "", data.specialties ?? "", data.commission_rate ?? 0, data.hire_date ?? "", data.title ?? "", data.color ?? "#7c3aed", data.active ?? 1],
+  );
   const staff = await g("SELECT * FROM staff WHERE id = $1", [result.lastInsertRowid]);
   return c.json({ staff }, 201);
 });
@@ -291,11 +395,11 @@ app.post("/api/staff", async (c) => {
 app.put("/api/staff/:id", async (c) => {
   const { id } = c.req.param();
   const body: any = await c.req.json();
-  const sets: string[] = [];
-  const params: any[] = [];
-  for (const [key, val] of Object.entries(body)) {
-    if (val !== undefined) { sets.push(`${key} = $${params.length + 1}`); params.push(val); }
+  const parsed = StaffPostSchema.partial().safeParse(body);
+  if (!parsed.success) {
+    return c.json({ error: parsed.error.errors.map(e => e.message).join(", ") }, 400);
   }
+  const { sets, params } = buildUpdate("staff", parsed.data as Record<string, unknown>);
   if (sets.length > 0) await r(`UPDATE staff SET ${sets.join(", ")} WHERE id = $${params.length + 1}`, [...params, id]);
   return c.json({ ok: true });
 });
@@ -322,11 +426,7 @@ app.post("/api/services", async (c) => {
 app.put("/api/services/:id", async (c) => {
   const { id } = c.req.param();
   const body: any = await c.req.json();
-  const sets: string[] = [];
-  const params: any[] = [];
-  for (const [key, val] of Object.entries(body)) {
-    if (val !== undefined) { sets.push(`${key} = $${params.length + 1}`); params.push(val); }
-  }
+  const { sets, params } = buildUpdate("services", body);
   if (sets.length > 0) await r(`UPDATE services SET ${sets.join(", ")} WHERE id = $${params.length + 1}`, [...params, id]);
   return c.json({ ok: true });
 });
@@ -359,7 +459,7 @@ app.get("/api/products", async (c) => {
   const category = c.req.query("category");
   let where = "WHERE 1=1";
   const params: any[] = [];
-  if (search) { where += " AND (p.name LIKE $1 OR p.brand LIKE $2 OR p.sku LIKE $3)"; const s = `%${search}%`; params.push(s, s, s); }
+  if (search) { where += " AND (p.name ILIKE $1 OR p.brand ILIKE $2 OR p.sku ILIKE $3)"; const s = `%${search}%`; params.push(s, s, s); }
   if (category) { where += ` AND p.category = $${params.length + 1}`; params.push(category); }
   const total = (await g(`SELECT COUNT(*) as count FROM products p ${where}`, params))?.count || 0;
   const products = await q(`SELECT * FROM products p ${where} ORDER BY p.name ASC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`, [...params, limit, offset]);
@@ -368,7 +468,16 @@ app.get("/api/products", async (c) => {
 
 app.post("/api/products", async (c) => {
   const body: any = await c.req.json();
-  const result = await r("INSERT INTO products (name, brand, category, sku, price, cost, stock, low_stock_alert) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id", [body.name, body.brand || "", body.category || "", body.sku || "", body.price || 0, body.cost || 0, body.stock || 0, body.low_stock_alert || 5]);
+  const parsed = ProductPostSchema.safeParse(body);
+  if (!parsed.success) {
+    return c.json({ error: parsed.error.errors.map(e => e.message).join(", ") }, 400);
+  }
+  const data = parsed.data;
+  const result = await r(
+    `INSERT INTO products (name, brand, category, sku, photo_url, price, cost, stock, low_stock_alert)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`,
+    [data.name, data.brand ?? "", data.category ?? "", data.sku ?? "", data.photo_url ?? "", data.price ?? 0, data.cost ?? 0, data.stock ?? 0, data.low_stock_alert ?? 5],
+  );
   const product = await g("SELECT * FROM products WHERE id = $1", [result.lastInsertRowid]);
   return c.json({ product }, 201);
 });
@@ -376,11 +485,11 @@ app.post("/api/products", async (c) => {
 app.put("/api/products/:id", async (c) => {
   const { id } = c.req.param();
   const body: any = await c.req.json();
-  const sets: string[] = [];
-  const params: any[] = [];
-  for (const [key, val] of Object.entries(body)) {
-    if (val !== undefined) { sets.push(`${key} = $${params.length + 1}`); params.push(val); }
+  const parsed = ProductPostSchema.partial().safeParse(body);
+  if (!parsed.success) {
+    return c.json({ error: parsed.error.errors.map(e => e.message).join(", ") }, 400);
   }
+  const { sets, params } = buildUpdate("products", parsed.data as Record<string, unknown>);
   if (sets.length > 0) { sets.push("updated_at = NOW()"); await r(`UPDATE products SET ${sets.join(", ")} WHERE id = $${params.length + 1}`, [...params, id]); }
   return c.json({ ok: true });
 });

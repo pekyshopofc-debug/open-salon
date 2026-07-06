@@ -46,6 +46,12 @@ export interface Client {
   name: string;
   email: string;
   phone: string;
+  photo_url: string;
+  birth_date: string;
+  cpf: string;
+  address: string;
+  instagram: string;
+  referral_source: string;
   notes: string;
   appointment_count?: number;
   created_at: string;
@@ -57,6 +63,11 @@ export interface Staff {
   name: string;
   email: string;
   phone: string;
+  photo_url: string;
+  bio: string;
+  specialties: string;
+  commission_rate: number;
+  hire_date: string;
   title: string;
   color: string;
   active: number;
@@ -93,6 +104,7 @@ export interface Product {
   brand: string;
   category: string;
   sku: string;
+  photo_url: string;
   price: number;
   cost: number;
   stock: number;

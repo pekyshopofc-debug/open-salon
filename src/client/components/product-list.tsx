@@ -1,6 +1,6 @@
 import { useState } from "preact/hooks";
 import { useApp } from "../context";
-import { Plus, Search, Trash2, AlertTriangle } from "lucide-preact";
+import { Plus, Search, Trash2, AlertTriangle, Pencil, Package } from "lucide-preact";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,10 +8,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Pagination } from "./pagination";
 import { CreateProduct } from "./create-product";
+import { EditProduct } from "./edit-product";
+import { Avatar } from "./avatar";
 
 export function ProductList() {
   const { products, productsPag, setProductsPage, productsSearch, setProductsSearch, deleteProduct } = useApp();
   const [showCreate, setShowCreate] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<number | null>(null);
 
   return (
     <div className="space-y-4 p-6">
@@ -23,6 +26,9 @@ export function ProductList() {
       </div>
 
       {showCreate && <CreateProduct onClose={() => setShowCreate(false)} />}
+      {editingProduct && (
+        <EditProduct product={products.find((p) => p.id === editingProduct)!} onClose={() => setEditingProduct(null)} />
+      )}
 
       <div className="relative">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -34,21 +40,31 @@ export function ProductList() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-10" />
                 <TableHead>Produto</TableHead>
                 <TableHead className="w-24">Marca</TableHead>
                 <TableHead className="w-24">Categoria</TableHead>
                 <TableHead className="w-20 text-right">Preço</TableHead>
                 <TableHead className="w-16 text-right">Custo</TableHead>
                 <TableHead className="w-20 text-center">Estoque</TableHead>
-                <TableHead className="w-10" />
+                <TableHead className="w-20" />
               </TableRow>
             </TableHeader>
             <TableBody>
               {products.length === 0 && (
-                <TableRow><TableCell colSpan={7} className="py-8 text-center text-muted-foreground">Nenhum produto encontrado</TableCell></TableRow>
+                <TableRow><TableCell colSpan={8} className="py-8 text-center text-muted-foreground">Nenhum produto encontrado</TableCell></TableRow>
               )}
               {products.map((p) => (
                 <TableRow key={p.id}>
+                  <TableCell>
+                    {p.photo_url ? (
+                      <Avatar name={p.name} photoUrl={p.photo_url} size="sm" className="rounded-lg" />
+                    ) : (
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted">
+                        <Package className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                    )}
+                  </TableCell>
                   <TableCell>
                     <div className="font-medium">{p.name}</div>
                     {p.sku && <div className="text-xs text-muted-foreground">SKU: {p.sku}</div>}
@@ -57,8 +73,8 @@ export function ProductList() {
                   <TableCell>
                     {p.category && <Badge variant="outline" className="text-xs">{p.category}</Badge>}
                   </TableCell>
-                  <TableCell className="text-right font-medium">${p.price.toFixed(2)}</TableCell>
-                  <TableCell className="text-right text-sm text-muted-foreground">${p.cost.toFixed(2)}</TableCell>
+                  <TableCell className="text-right font-medium">R$ {p.price.toFixed(2)}</TableCell>
+                  <TableCell className="text-right text-sm text-muted-foreground">R$ {p.cost.toFixed(2)}</TableCell>
                   <TableCell className="text-center">
                     <span className="flex items-center justify-center gap-1">
                       {p.stock <= p.low_stock_alert && (
@@ -68,9 +84,14 @@ export function ProductList() {
                     </span>
                   </TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => deleteProduct(p.id)}>
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground" onClick={() => setEditingProduct(p.id)}>
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => deleteProduct(p.id)}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
