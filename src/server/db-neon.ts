@@ -1,14 +1,19 @@
-import { neon } from "@neondatabase/serverless";
+import { Pool, QueryResult } from "pg";
 
-let sqlFn: any = null;
+let pool: Pool | null = null;
 
 export function initDB(): void {
-  if (!sqlFn) {
+  if (!pool) {
     const url = process.env.DATABASE_URL;
     if (!url) {
       throw new Error("DATABASE_URL environment variable is not set");
     }
-    sqlFn = neon(url);
+    pool = new Pool({
+      connectionString: url,
+      max: 1,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 10000,
+    });
   }
 }
 
@@ -21,10 +26,10 @@ function adaptSql(sql: string): string {
 }
 
 export async function query<T>(queryStr: string, params?: unknown[]): Promise<T[]> {
-  if (!sqlFn) throw new Error("Database not initialized. Call initDB() first.");
+  if (!pool) throw new Error("Database not initialized. Call initDB() first.");
   const adapted = adaptSql(queryStr);
-  const result: any[] = await sqlFn.query(adapted, params);
-  return result as unknown as T[];
+  const result: QueryResult = await pool.query(adapted, params);
+  return result.rows as unknown as T[];
 }
 
 export async function get<T>(queryStr: string, params?: unknown[]): Promise<T | null> {
@@ -36,13 +41,11 @@ export async function run(
   queryStr: string,
   params?: unknown[],
 ): Promise<{ lastInsertRowid: number; changes: number }> {
-  if (!sqlFn) throw new Error("Database not initialized. Call initDB() first.");
+  if (!pool) throw new Error("Database not initialized. Call initDB() first.");
   const adapted = adaptSql(queryStr);
-  const result: any[] = await sqlFn.query(adapted, params);
+  const result: QueryResult = await pool.query(adapted, params);
   return {
-    lastInsertRowid: result?.length > 0 ? (result[0]?.id as number) ?? 0 : 0,
-    changes: result?.length ?? 0,
+    lastInsertRowid: result.rows?.length > 0 ? (result.rows[0] as Record<string, unknown>)?.id as number ?? 0 : 0,
+    changes: result.rowCount ?? 0,
   };
 }
-
-
