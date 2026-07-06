@@ -13,6 +13,10 @@ import { StaffList } from "./components/staff-list";
 import { ServiceList } from "./components/service-list";
 import { ProductList } from "./components/product-list";
 import { ErrorBanner } from "./components/error-banner";
+import { BookingLayout } from "./components/booking/booking-layout";
+import { BookingHome } from "./components/booking/booking-home";
+import { BookingBook } from "./components/booking/booking-book";
+import { BookingMyBookings } from "./components/booking/booking-my-bookings";
 
 export function App() {
   const isAgent = useMemo(() => {
@@ -26,7 +30,7 @@ export function App() {
     }
   }, [isAgent]);
 
-  const { view, id, navigate } = useRouter();
+  const { view, id, bookingView, navigate } = useRouter();
   const appState = useAppState(isAgent, navigate);
 
   useEffect(() => {
@@ -37,6 +41,30 @@ export function App() {
     }
   }, [view, id]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ── Booking Portal ──
+  if (bookingView !== null) {
+    const renderBooking = () => {
+      switch (bookingView) {
+        case "book":
+          return <BookingBook navigate={navigate} />;
+        case "my-bookings":
+          return <BookingMyBookings navigate={navigate} />;
+        case "servicos":
+        case "equipe":
+          return <BookingHome navigate={navigate} />;
+        default:
+          return <BookingHome navigate={navigate} />;
+      }
+    };
+
+    return (
+      <BookingLayout currentPath={`/booking/${bookingView}`} navigate={navigate}>
+        {renderBooking()}
+      </BookingLayout>
+    );
+  }
+
+  // ── Admin Panel ──
   const renderMain = () => {
     if (view === "appointments" && id && appState.selectedAppointment) return <AppointmentDetail />;
     if (view === "clients" && id && appState.selectedClient) return <ClientDetail />;

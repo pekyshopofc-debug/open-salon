@@ -500,4 +500,209 @@ app.delete("/api/products/:id", async (c) => {
   return c.json({ ok: true });
 });
 
+// ═══════════════════════════════════════════════════
+// PUBLIC API — Portal do Cliente
+// ═══════════════════════════════════════════════════
+
+const BUSINESS_START = "08:00";
+const BUSINESS_END = "20:00";
+
+function timeToMinutes(time: string): number {
+  const [h, m] = time.split(":").map(Number);
+  return h * 60 + m;
+}
+
+// ── List active services ──
+app.get("/api/public/services", async (c) => {
+  const services = await q(
+    "SELECT id, name, description, duration, price, color, category FROM services WHERE active = 1 ORDER BY category ASC, name ASC",
+  );
+  return c.json({ services });
+});
+
+// ── List active staff ──
+app.get("/api/public/staff", async (c) => {
+  const staff = await q(
+    "SELECT id, name, photo_url, bio, specialties, title, color FROM staff WHERE active = 1 ORDER BY name ASC",
+  );
+  return c.json({ staff });
+});
+
+// ── Available time slots for a staff member on a given date ──
+// GET /api/public/slots?staff_id=1&date=2025-01-15&duration=60
+app.get("/api/public/slots", async (c) => {
+  const staffId = parseInt(c.req.query("staff_id") || "0", 10);
+  const date = c.req.query("date") || "";
+  const duration = parseInt(c.req.query("duration") || "60", 10);
+
+  if (!staffId || !date) {
+    return c.json({ slots: [] });
+  }
+
+  // Get existing appointments for this staff on this date
+  const appointments = await q(
+    `SELECT start_time, end_time FROM appointments
+     WHERE staff_id = $1 AND scheduled_date = $2 AND status NOT IN ('cancelled', 'no_show')`,
+    [staffId, date],
+  );
+
+  // Get blocked slots for this staff on this date
+  const blocked = await q(
+    `SELECT start_time, end_time FROM blocked_slots
+     WHERE staff_id = $1 AND blocked_date = $2`,
+    [staffId, date],
+  );
+
+  const busyRanges = [...appointments, ...blocked].map((b: any) => ({
+    start: timeToMinutes(b.start_time),
+    end: timeToMinutes(b.end_time),
+  }));
+
+  const startBusiness = timeToMinutes(BUSINESS_START);
+  const endBusiness = timeToMinutes(BUSINESS_END);
+  const slotDuration = duration;
+  const step = 30; // slots every 30 minutes
+  const slots: string[] = [];
+
+  for (let t = startBusiness; t + slotDuration <= endBusiness; t += step) {
+    const slotEnd = t + slotDuration;
+    const conflicts = busyRanges.some((b) => t < b.end && slotEnd > b.start);
+    if (!conflicts) {
+      const h = Math.floor(t / 60);
+      const m = t % 60;
+      slots.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+    }
+  }
+
+  return c.json({ slots });
+});
+
+// ── Book appointment (public) ──
+app.post("/api/public/book", async (c) => {
+  const body: any = await c.req.json();
+  const { name, phone, email, service_ids, staff_id, scheduled_date, start_time, notes } = body;
+
+  if (!name || !phone || !service_ids?.length || !scheduled_date || !start_time) {
+    return c.json({ error: "Nome, telefone, serviços, data e horário são obrigatórios" }, 400);
+  }
+
+  // Find or create client by phone
+  let client = await g("SELECT * FROM clients WHERE phone = $1", [phone]);
+  if (!client) {
+    const result = await r(
+      "INSERT INTO clients (name, email, phone) VALUES ($1, $2, $3) RETURNING id",
+      [name, email || "", phone],
+    );
+    client = await g("SELECT * FROM clients WHERE id = $1", [result.lastInsertRowid]);
+  } else {
+    // Update name if changed
+    if (client.name !== name) {
+      await r("UPDATE clients SET name = $1, updated_at = NOW() WHERE id = $2", [name, client.id]);
+    }
+  }
+
+  // Calculate duration and price
+  const svcs = await q(
+    `SELECT id, duration, price FROM services WHERE id IN (${service_ids.map((_: number, i: number) => `$${i + 1}`).join(",")})`,
+    service_ids,
+  );
+  const totalDuration = svcs.reduce((sum: number, s: any) => sum + (s.duration || 60), 0);
+  const totalPrice = svcs.reduce((sum: number, s: any) => sum + (s.price || 0), 0);
+  const endTime = addMinutes(start_time, totalDuration);
+  const identifier = `APT-${Date.now()}`;
+
+  const result = await r(
+    `INSERT INTO appointments (identifier, client_id, staff_id, scheduled_date, start_time, end_time, total_price, notes)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
+    [identifier, client.id, staff_id || null, scheduled_date, start_time, endTime, totalPrice, notes || ""],
+  );
+
+  for (let i = 0; i < service_ids.length; i++) {
+    const svc = svcs.find((s: any) => s.id === service_ids[i]) || svcs[i];
+    if (svc) {
+      await r(
+        "INSERT INTO appointment_services (appointment_id, service_id, price, duration) VALUES ($1, $2, $3, $4)",
+        [result.lastInsertRowid, service_ids[i], svc.price || 0, svc.duration || 60],
+      );
+    }
+  }
+
+  const apt = await g(
+    `SELECT a.*, cl.name as client_name, cl.phone as client_phone,
+            s.name as staff_name, s.color as staff_color
+     FROM appointments a LEFT JOIN clients cl ON cl.id = a.client_id
+     LEFT JOIN staff s ON s.id = a.staff_id WHERE a.id = $1`, [result.lastInsertRowid],
+  );
+  apt.services = await q(
+    `SELECT aps.*, sv.name as service_name FROM appointment_services aps
+     LEFT JOIN services sv ON sv.id = aps.service_id WHERE aps.appointment_id = $1`, [result.lastInsertRowid],
+  );
+
+  return c.json({ appointment: apt }, 201);
+});
+
+// ── Get bookings by phone ──
+app.get("/api/public/bookings", async (c) => {
+  const phone = c.req.query("phone") || "";
+  if (!phone) return c.json({ appointments: [] });
+
+  const client = await g("SELECT id FROM clients WHERE phone = $1", [phone]);
+  if (!client) return c.json({ appointments: [] });
+
+  const appointments = await q(
+    `SELECT a.*, cl.name as client_name, cl.phone as client_phone,
+            s.name as staff_name, s.color as staff_color
+     FROM appointments a LEFT JOIN clients cl ON cl.id = a.client_id
+     LEFT JOIN staff s ON s.id = a.staff_id
+     WHERE a.client_id = $1 ORDER BY a.scheduled_date DESC, a.start_time DESC LIMIT 20`,
+    [client.id],
+  );
+
+  for (const apt of appointments) {
+    apt.services = await q(
+      `SELECT aps.*, sv.name as service_name FROM appointment_services aps
+       LEFT JOIN services sv ON sv.id = aps.service_id WHERE aps.appointment_id = $1`, [apt.id],
+    );
+  }
+
+  return c.json({ appointments, client });
+});
+
+// ── Cancel booking by phone (public) ──
+app.post("/api/public/bookings/:id/cancel", async (c) => {
+  const { id } = c.req.param();
+  const body: any = await c.req.json();
+  const phone = body.phone || "";
+
+  // Verify the booking belongs to this phone
+  const apt = await g(
+    `SELECT a.id, cl.phone FROM appointments a
+     LEFT JOIN clients cl ON cl.id = a.client_id WHERE a.id = $1`, [id],
+  );
+  if (!apt) return c.json({ error: "Agendamento não encontrado" }, 404);
+  if (apt.phone !== phone) return c.json({ error: "Este agendamento não pertence a este telefone" }, 403);
+
+  await r("UPDATE appointments SET status = 'cancelled', updated_at = NOW() WHERE id = $1", [id]);
+  return c.json({ ok: true });
+});
+
+// ── Complete profile (fidelity/loyalty) ──
+app.put("/api/public/profile", async (c) => {
+  const body: any = await c.req.json();
+  const { phone } = body;
+  if (!phone) return c.json({ error: "Telefone é obrigatório" }, 400);
+
+  const client = await g("SELECT * FROM clients WHERE phone = $1", [phone]);
+  if (!client) return c.json({ error: "Cliente não encontrado" }, 404);
+
+  const { sets, params } = buildUpdate("clients", body);
+  if (sets.length > 0) {
+    sets.push("updated_at = NOW()");
+    await r(`UPDATE clients SET ${sets.join(", ")} WHERE id = $${params.length + 1}`, [...params, client.id]);
+  }
+
+  const updated = await g("SELECT * FROM clients WHERE id = $1", [client.id]);
+  return c.json({ client: updated });
+});
+
 export default app;

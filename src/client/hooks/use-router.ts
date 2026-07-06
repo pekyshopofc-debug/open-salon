@@ -4,6 +4,7 @@ import type { View } from "../types";
 export interface RouteState {
   view: View;
   id: string | null;
+  bookingView: string | null;
 }
 
 const VIEW_ROUTES: Record<string, View> = {
@@ -21,9 +22,15 @@ function parseRoute(path: string): RouteState {
   const clean = path.replace(/^\/+|\/+$/g, "");
   const segments = clean.split("/");
   const viewKey = segments[0] || "";
+
+  // Booking routes
+  if (viewKey === "booking") {
+    return { view: "dashboard", id: null, bookingView: segments[1] || "home" };
+  }
+
   const view = VIEW_ROUTES[viewKey] || "dashboard";
   const id = segments[1] || null;
-  return { view, id };
+  return { view, id, bookingView: null };
 }
 
 export function useRouter() {
