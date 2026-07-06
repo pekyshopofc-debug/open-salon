@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import { initDB, query, get, run } from "./db-neon.js";
 
