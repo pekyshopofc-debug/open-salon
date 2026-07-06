@@ -26,7 +26,7 @@ export async function query<T>(queryStr: string, params?: unknown[]): Promise<T[
   const adapted = adaptSql(queryStr);
   // .query() uses HTTP mode — fastest for cold starts on Vercel
   const result = await sqlFn.query(adapted, params ?? []);
-  return result as unknown as T[];
+  return (Array.isArray(result) ? result : []) as unknown as T[];
 }
 
 export async function get<T>(queryStr: string, params?: unknown[]): Promise<T | null> {
@@ -40,9 +40,10 @@ export async function run(
 ): Promise<{ lastInsertRowid: number; changes: number }> {
   if (!sqlFn) throw new Error("Database not initialized. Call initDB() first.");
   const adapted = adaptSql(queryStr);
-  const result: any[] = await sqlFn.query(adapted, params ?? []);
+  const result = await sqlFn.query(adapted, params ?? []);
+  const rows = Array.isArray(result) ? result : [];
   return {
-    lastInsertRowid: result?.length > 0 ? (result[0]?.id as number) ?? 0 : 0,
-    changes: result?.length ?? 0,
+    lastInsertRowid: rows.length > 0 ? (rows[0] as Record<string, unknown>)?.id as number ?? 0 : 0,
+    changes: rows.length,
   };
 }
