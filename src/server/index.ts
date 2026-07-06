@@ -1,6 +1,33 @@
 import { Hono } from "hono";
 import { z } from "zod";
 
+// ── Authentication ──
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin";
+const ADMIN_TOKEN = Buffer.from("admin:" + ADMIN_PASSWORD).toString("base64");
+
+// Auth middleware — protege todas as rotas /api/* exceto públicas e auth
+app.use("/api/*", async (c, next) => {
+  // Rotas públicas não precisam de auth
+  if (c.req.path.startsWith("/api/public/") || c.req.path.startsWith("/api/auth/")) {
+    await next();
+    return;
+  }
+  const auth = c.req.header("Authorization");
+  if (!auth || !auth.startsWith("Bearer ") || auth.slice(7) !== ADMIN_TOKEN) {
+    return c.json({ error: "Não autorizado. Faça login primeiro." }, 401);
+  }
+  await next();
+});
+
+// Login endpoint
+app.post("/api/auth/login", async (c) => {
+  const body: any = await c.req.json();
+  if (body.password === ADMIN_PASSWORD) {
+    return c.json({ token: ADMIN_TOKEN });
+  }
+  return c.json({ error: "Senha inválida" }, 401);
+});
+
 // ── Lazy database initialization ──
 let queryFn: ((sql: string, params?: any[]) => Promise<any[]>) | null = null;
 let getFn: ((sql: string, params?: any[]) => Promise<any>) | null = null;

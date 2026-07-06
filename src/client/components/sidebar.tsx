@@ -1,5 +1,5 @@
 import { useApp } from "../context";
-import { Scissors, LayoutDashboard, CalendarDays, Clock, Users, UserCog, Sparkles, Package } from "lucide-preact";
+import { Scissors, LayoutDashboard, CalendarDays, Clock, Users, UserCog, Sparkles, Package, LogOut } from "lucide-preact";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
@@ -15,7 +15,7 @@ const navItems: { view: View; path: string; label: string; icon: typeof LayoutDa
   { view: "products", path: "/products", label: "Produtos", icon: Package },
 ];
 
-export function Sidebar({ currentView }: { currentView: View }) {
+export function Sidebar({ currentView, onLogout }: { currentView: View; onLogout: () => void }) {
   const { navigate, stats } = useApp();
 
   return (
@@ -55,15 +55,24 @@ export function Sidebar({ currentView }: { currentView: View }) {
         ))}
       </nav>
       <Separator />
-      <div className="flex items-center justify-around px-4 py-4">
-        <div className="text-center">
-          <div className="text-lg font-bold text-sidebar-foreground">{stats.today_appointments}</div>
-          <div className="text-xs text-muted-foreground">Hoje</div>
+      <div className="flex flex-col gap-2 px-4 py-4">
+        <div className="flex items-center justify-around">
+          <div className="text-center">
+            <div className="text-lg font-bold text-sidebar-foreground">{stats.today_appointments}</div>
+            <div className="text-xs text-muted-foreground">Hoje</div>
+          </div>
+          <div className="text-center">
+            <div className="text-lg font-bold text-sidebar-foreground">{stats.upcoming_appointments}</div>
+            <div className="text-xs text-muted-foreground">Próximos</div>
+          </div>
         </div>
-        <div className="text-center">
-          <div className="text-lg font-bold text-sidebar-foreground">{stats.upcoming_appointments}</div>
-          <div className="text-xs text-muted-foreground">Próximos</div>
-        </div>
+        <button
+          onClick={onLogout}
+          className="mt-1 flex w-full items-center justify-center gap-2 rounded-md px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+        >
+          <LogOut className="h-3.5 w-3.5" />
+          Sair
+        </button>
       </div>
     </aside>
   );

@@ -1,8 +1,9 @@
-import { useEffect, useMemo } from "preact/hooks";
+import { useEffect, useMemo, useState } from "preact/hooks";
 import { AppContext } from "./context";
 import { useAppState } from "./hooks/use-app";
 import { useRouter } from "./hooks/use-router";
 import { Sidebar } from "./components/sidebar";
+import { Login } from "./components/login";
 import { Dashboard } from "./components/dashboard";
 import { CalendarView } from "./components/calendar-view";
 import { AppointmentList } from "./components/appointment-list";
@@ -18,7 +19,24 @@ import { BookingHome } from "./components/booking/booking-home";
 import { BookingBook } from "./components/booking/booking-book";
 import { BookingMyBookings } from "./components/booking/booking-my-bookings";
 
+function checkAuth(): boolean {
+  // Login page is always accessible
+  if (window.location.pathname === "/login") return true;
+  // Booking portal is public
+  if (window.location.pathname.startsWith("/booking")) return true;
+  // Admin routes need token
+  return !!localStorage.getItem("admin_token");
+}
+
 export function App() {
+  const [authenticated, setAuthenticated] = useState(checkAuth);
+
+  useEffect(() => {
+    const handler = () => setAuthenticated(checkAuth());
+    window.addEventListener("popstate", handler);
+    return () => window.removeEventListener("popstate", handler);
+  }, []);
+
   const isAgent = useMemo(() => {
     const params = new URLSearchParams(window.location.search);
     return params.has("agent") || params.get("mode") === "agent";
@@ -41,7 +59,12 @@ export function App() {
     }
   }, [view, id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Booking Portal ──
+  // ── Login Page ──
+  if (window.location.pathname === "/login") {
+    return <Login onLogin={() => { setAuthenticated(true); window.history.pushState(null, "", "/"); }} />;
+  }
+
+  // ── Booking Portal (public) ──
   if (bookingView !== null) {
     const renderBooking = () => {
       switch (bookingView) {
@@ -64,6 +87,11 @@ export function App() {
     );
   }
 
+  // ── Auth guard for admin ──
+  if (!authenticated) {
+    return <Login onLogin={() => { setAuthenticated(true); window.history.pushState(null, "", "/"); }} />;
+  }
+
   // ── Admin Panel ──
   const renderMain = () => {
     if (view === "appointments" && id && appState.selectedAppointment) return <AppointmentDetail />;
@@ -82,7 +110,7 @@ export function App() {
   return (
     <AppContext.Provider value={appState}>
       <div className="flex h-screen overflow-hidden">
-        <Sidebar currentView={view} />
+        <Sidebar currentView={view} onLogout={() => { localStorage.removeItem("admin_token"); setAuthenticated(false); }} />
         <main className="flex-1 overflow-y-auto bg-background">
           {appState.loading ? (
             <div className="flex h-full items-center justify-center text-muted-foreground">Carregando...</div>
