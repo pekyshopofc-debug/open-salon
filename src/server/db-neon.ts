@@ -27,7 +27,7 @@ function adaptSql(sql: string): string {
 export async function query<T>(queryStr: string, params?: unknown[]): Promise<T[]> {
   if (!sqlFn) throw new Error("Database not initialized. Call initDB() first.");
   const adapted = adaptSql(queryStr);
-  const result = await sqlFn(adapted, params as (string | number | boolean | null)[]);
+  const result = await sqlFn.query(adapted, params as (string | number | boolean | null)[]);
   return result as unknown as T[];
 }
 
@@ -42,25 +42,11 @@ export async function run(
 ): Promise<{ lastInsertRowid: number; changes: number }> {
   if (!sqlFn) throw new Error("Database not initialized. Call initDB() first.");
   const adapted = adaptSql(queryStr);
-  const result = await sqlFn(adapted, params as (string | number | boolean | null)[]);
+  const result = await sqlFn.query(adapted, params as (string | number | boolean | null)[]);
   return {
     lastInsertRowid: result && result.length > 0 ? ((result[0] as Record<string, unknown>)?.id as number) ?? 0 : 0,
     changes: result?.length ?? 0,
   };
 }
 
-/**
- * Run a query to initialize/seede the database schema.
- * Used for the initial setup via schema.pg.sql.
- */
-export async function execute(sql: string): Promise<void> {
-  if (!sqlFn) throw new Error("Database not initialized. Call initDB() first.");
-  // Split by semicolons and execute each statement
-  const statements = sql
-    .split(";")
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0 && !s.startsWith("--"));
-  for (const stmt of statements) {
-    await sqlFn(stmt);
-  }
-}
+
