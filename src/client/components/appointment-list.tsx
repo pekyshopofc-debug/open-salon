@@ -21,9 +21,9 @@ export function AppointmentList() {
   return (
     <div className="space-y-4 p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Appointments</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Agendamentos</h1>
         <Button size="sm" onClick={() => setShowCreate(true)}>
-          <Plus className="mr-1 h-3.5 w-3.5" /> New Booking
+          <Plus className="mr-1 h-3.5 w-3.5" /> Novo Agendamento
         </Button>
       </div>
 
@@ -34,7 +34,7 @@ export function AppointmentList() {
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             className="pl-9"
-            placeholder="Search appointments..."
+            placeholder="Buscar agendamentos..."
             value={appointmentsSearch}
             onInput={(e) => setAppointmentsSearch((e.target as HTMLInputElement).value)}
           />
@@ -44,13 +44,13 @@ export function AppointmentList() {
           value={appointmentsStatusFilter}
           onChange={(e) => setAppointmentsStatusFilter((e.target as HTMLSelectElement).value)}
         >
-          <option value="">All Statuses</option>
-          <option value="booked">Booked</option>
-          <option value="confirmed">Confirmed</option>
-          <option value="in_progress">In Progress</option>
-          <option value="completed">Completed</option>
-          <option value="cancelled">Cancelled</option>
-          <option value="no_show">No Show</option>
+          <option value="">Todos os Status</option>
+          <option value="booked">Agendado</option>
+          <option value="confirmed">Confirmado</option>
+          <option value="in_progress">Em Andamento</option>
+          <option value="completed">Concluído</option>
+          <option value="cancelled">Cancelado</option>
+          <option value="no_show">Não Compareceu</option>
         </select>
       </div>
 
@@ -60,19 +60,19 @@ export function AppointmentList() {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-20">ID</TableHead>
-                <TableHead className="w-24">Date</TableHead>
-                <TableHead className="w-16">Time</TableHead>
-                <TableHead>Client</TableHead>
-                <TableHead className="w-28">Staff</TableHead>
+                <TableHead className="w-24">Data</TableHead>
+                <TableHead className="w-16">Horário</TableHead>
+                <TableHead>Cliente</TableHead>
+                <TableHead className="w-28">Equipe</TableHead>
                 <TableHead className="w-24">Status</TableHead>
-                <TableHead className="w-20 text-right">Price</TableHead>
+                <TableHead className="w-20 text-right">Preço</TableHead>
                 <TableHead className="w-10" />
               </TableRow>
             </TableHeader>
             <TableBody>
               {appointments.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">No appointments found</TableCell>
+                  <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">Nenhum agendamento encontrado</TableCell>
                 </TableRow>
               )}
               {appointments.map((apt) => (

@@ -16,9 +16,9 @@ export function ProductList() {
   return (
     <div className="space-y-4 p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Products</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Produtos</h1>
         <Button size="sm" onClick={() => setShowCreate(true)}>
-          <Plus className="mr-1 h-3.5 w-3.5" /> Add Product
+          <Plus className="mr-1 h-3.5 w-3.5" /> Adicionar Produto
         </Button>
       </div>
 
@@ -26,7 +26,7 @@ export function ProductList() {
 
       <div className="relative">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input className="pl-9" placeholder="Search products..." value={productsSearch} onInput={(e) => setProductsSearch((e.target as HTMLInputElement).value)} />
+        <Input className="pl-9" placeholder="Buscar produtos..." value={productsSearch} onInput={(e) => setProductsSearch((e.target as HTMLInputElement).value)} />
       </div>
 
       <Card>
@@ -34,18 +34,18 @@ export function ProductList() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Product</TableHead>
-                <TableHead className="w-24">Brand</TableHead>
-                <TableHead className="w-24">Category</TableHead>
-                <TableHead className="w-20 text-right">Price</TableHead>
-                <TableHead className="w-16 text-right">Cost</TableHead>
-                <TableHead className="w-20 text-center">Stock</TableHead>
+                <TableHead>Produto</TableHead>
+                <TableHead className="w-24">Marca</TableHead>
+                <TableHead className="w-24">Categoria</TableHead>
+                <TableHead className="w-20 text-right">Preço</TableHead>
+                <TableHead className="w-16 text-right">Custo</TableHead>
+                <TableHead className="w-20 text-center">Estoque</TableHead>
                 <TableHead className="w-10" />
               </TableRow>
             </TableHeader>
             <TableBody>
               {products.length === 0 && (
-                <TableRow><TableCell colSpan={7} className="py-8 text-center text-muted-foreground">No products found</TableCell></TableRow>
+                <TableRow><TableCell colSpan={7} className="py-8 text-center text-muted-foreground">Nenhum produto encontrado</TableCell></TableRow>
               )}
               {products.map((p) => (
                 <TableRow key={p.id}>

@@ -13,9 +13,9 @@ export function StaffList() {
   return (
     <div className="space-y-4 p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Staff</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Equipe</h1>
         <Button size="sm" onClick={() => setShowCreate(true)}>
-          <Plus className="mr-1 h-3.5 w-3.5" /> Add Staff
+          <Plus className="mr-1 h-3.5 w-3.5" /> Adicionar Equipe
         </Button>
       </div>
 
@@ -31,12 +31,12 @@ export function StaffList() {
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <h3 className="font-semibold">{s.name}</h3>
-                  {!s.active && <Badge variant="secondary">Inactive</Badge>}
+                  {!s.active && <Badge variant="secondary">Inativo</Badge>}
                 </div>
                 {s.title && <p className="text-sm text-muted-foreground">{s.title}</p>}
                 {s.email && <p className="text-xs text-muted-foreground">{s.email}</p>}
                 {s.phone && <p className="text-xs text-muted-foreground">{s.phone}</p>}
-                <p className="mt-1 text-xs text-muted-foreground">{s.appointment_count || 0} appointments</p>
+                <p className="mt-1 text-xs text-muted-foreground">{s.appointment_count || 0} agendamentos</p>
               </div>
               <div className="flex gap-1">
                 {s.active ? (
@@ -44,7 +44,7 @@ export function StaffList() {
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
                 ) : (
-                  <Button variant="outline" size="sm" onClick={() => updateStaff(s.id, { active: 1 })}>Activate</Button>
+                  <Button variant="outline" size="sm" onClick={() => updateStaff(s.id, { active: 1 })}>Ativar</Button>
                 )}
                 <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => deleteStaff(s.id)}>
                   <Trash2 className="h-3.5 w-3.5" />
@@ -54,7 +54,7 @@ export function StaffList() {
           </Card>
         ))}
         {staffMembers.length === 0 && (
-          <p className="col-span-full py-12 text-center text-muted-foreground">No staff members yet</p>
+          <p className="col-span-full py-12 text-center text-muted-foreground">Nenhum membro da equipe ainda</p>
         )}
       </div>
     </div>

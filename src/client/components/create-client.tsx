@@ -15,7 +15,7 @@ export function CreateClient({ onClose }: { onClose: () => void }) {
   const [saving, setSaving] = useState(false);
 
   const handleSubmit = async () => {
-    if (!name.trim()) { setError("Name is required"); return; }
+    if (!name.trim()) { setError("Nome é obrigatório"); return; }
     setSaving(true);
     try {
       await addClient({ name: name.trim(), email, phone, notes });
@@ -31,31 +31,31 @@ export function CreateClient({ onClose }: { onClose: () => void }) {
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Add Client</DialogTitle>
+          <DialogTitle>Adicionar Cliente</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           <div className="space-y-1.5">
-            <Label>Name *</Label>
-            <Input value={name} onChange={(e) => setName((e.target as HTMLInputElement).value)} placeholder="Full name" />
+            <Label>Nome *</Label>
+            <Input value={name} onChange={(e) => setName((e.target as HTMLInputElement).value)} placeholder="Nome completo" />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Email</Label>
+              <Label>E-mail</Label>
               <Input type="email" value={email} onChange={(e) => setEmail((e.target as HTMLInputElement).value)} placeholder="email@example.com" />
             </div>
             <div className="space-y-1.5">
-              <Label>Phone</Label>
+              <Label>Telefone</Label>
               <Input value={phone} onChange={(e) => setPhone((e.target as HTMLInputElement).value)} placeholder="555-0100" />
             </div>
           </div>
           <div className="space-y-1.5">
-            <Label>Notes</Label>
-            <Textarea rows={2} value={notes} onChange={(e) => setNotes((e.target as HTMLTextAreaElement).value)} placeholder="Preferences, allergies, etc." />
+            <Label>Observações</Label>
+            <Textarea rows={2} value={notes} onChange={(e) => setNotes((e.target as HTMLTextAreaElement).value)} placeholder="Preferências, alergias, etc." />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button disabled={saving} onClick={handleSubmit}>{saving ? "Saving..." : "Add Client"}</Button>
+          <Button variant="outline" onClick={onClose}>Cancelar</Button>
+          <Button disabled={saving} onClick={handleSubmit}>{saving ? "Salvando..." : "Adicionar Cliente"}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

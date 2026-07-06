@@ -38,7 +38,7 @@ export function CreateAppointment({ onClose, defaultDate }: Props) {
     .reduce((sum, s) => sum + s.duration, 0);
 
   const handleSubmit = async () => {
-    if (!clientId) { setError("Please select a client"); return; }
+    if (!clientId) { setError("Por favor, selecione um cliente"); return; }
     setSaving(true);
     try {
       await addAppointment({
@@ -61,38 +61,38 @@ export function CreateAppointment({ onClose, defaultDate }: Props) {
     <Dialog open onOpenChange={onClose}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>New Booking</DialogTitle>
+          <DialogTitle>Novo Agendamento</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Client *</Label>
+              <Label>Cliente *</Label>
               <select className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" value={clientId} onChange={(e) => setClientId((e.target as HTMLSelectElement).value)}>
-                <option value="">Select client...</option>
+                <option value="">Selecionar cliente...</option>
                 {clientLookup.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
             <div className="space-y-1.5">
-              <Label>Staff</Label>
+              <Label>Equipe</Label>
               <select className="flex h-9 w-full rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" value={staffId} onChange={(e) => setStaffId((e.target as HTMLSelectElement).value)}>
-                <option value="">Unassigned</option>
+                <option value="">Sem Atribuição</option>
                 {staffLookup.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <Label>Date</Label>
+              <Label>Data</Label>
               <Input type="date" value={date} onChange={(e) => setDate((e.target as HTMLInputElement).value)} />
             </div>
             <div className="space-y-1.5">
-              <Label>Start Time</Label>
+              <Label>Horário de Início</Label>
               <Input type="time" value={startTime} onChange={(e) => setStartTime((e.target as HTMLInputElement).value)} />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <Label>Services</Label>
+            <Label>Serviços</Label>
             <div className="flex flex-wrap gap-2">
               {services.filter((s) => s.active).map((svc) => (
                 <button
@@ -119,14 +119,14 @@ export function CreateAppointment({ onClose, defaultDate }: Props) {
           </div>
 
           <div className="space-y-1.5">
-            <Label>Notes</Label>
-            <Textarea rows={3} placeholder="Special requests, preferences..." value={notes} onChange={(e) => setNotes((e.target as HTMLTextAreaElement).value)} />
+            <Label>Observações</Label>
+            <Textarea rows={3} placeholder="Pedidos especiais, preferências..." value={notes} onChange={(e) => setNotes((e.target as HTMLTextAreaElement).value)} />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" onClick={onClose}>Cancelar</Button>
           <Button disabled={saving} onClick={handleSubmit}>
-            {saving ? "Booking..." : "Create Booking"}
+            {saving ? "Agendando..." : "Criar Agendamento"}
           </Button>
         </DialogFooter>
       </DialogContent>

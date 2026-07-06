@@ -6,13 +6,13 @@ import { cn } from "@/lib/utils";
 import type { View } from "../types";
 
 const navItems: { view: View; path: string; label: string; icon: typeof LayoutDashboard }[] = [
-  { view: "dashboard", path: "/", label: "Dashboard", icon: LayoutDashboard },
-  { view: "calendar", path: "/calendar", label: "Calendar", icon: CalendarDays },
-  { view: "appointments", path: "/appointments", label: "Appointments", icon: Clock },
-  { view: "clients", path: "/clients", label: "Clients", icon: Users },
-  { view: "staff", path: "/staff", label: "Staff", icon: UserCog },
-  { view: "services", path: "/services", label: "Services", icon: Sparkles },
-  { view: "products", path: "/products", label: "Products", icon: Package },
+  { view: "dashboard", path: "/", label: "Painel", icon: LayoutDashboard },
+  { view: "calendar", path: "/calendar", label: "Agenda", icon: CalendarDays },
+  { view: "appointments", path: "/appointments", label: "Agendamentos", icon: Clock },
+  { view: "clients", path: "/clients", label: "Clientes", icon: Users },
+  { view: "staff", path: "/staff", label: "Equipe", icon: UserCog },
+  { view: "services", path: "/services", label: "Serviços", icon: Sparkles },
+  { view: "products", path: "/products", label: "Produtos", icon: Package },
 ];
 
 export function Sidebar({ currentView }: { currentView: View }) {
@@ -58,11 +58,11 @@ export function Sidebar({ currentView }: { currentView: View }) {
       <div className="flex items-center justify-around px-4 py-4">
         <div className="text-center">
           <div className="text-lg font-bold text-sidebar-foreground">{stats.today_appointments}</div>
-          <div className="text-xs text-muted-foreground">Today</div>
+          <div className="text-xs text-muted-foreground">Hoje</div>
         </div>
         <div className="text-center">
           <div className="text-lg font-bold text-sidebar-foreground">{stats.upcoming_appointments}</div>
-          <div className="text-xs text-muted-foreground">Upcoming</div>
+          <div className="text-xs text-muted-foreground">Próximos</div>
         </div>
       </div>
     </aside>

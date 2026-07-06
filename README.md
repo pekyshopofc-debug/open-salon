@@ -1,54 +1,54 @@
-<img src="readme-banner.png" alt="Open Salon preview" width="100%" />
+<img src="readme-banner.png" alt="Visualização do Open Salon" width="100%" />
 
-# Open Salon: The Open-Source Salonist & Fresha Alternative
+# Open Salon: Alternativa Open-Source ao Salonist e Fresha
 
-An appointment booking and business management app for salons, spas, barbershops, tattoo studios, and any appointment-based business. Part of the [OpenClaw](https://github.com/openclaw/openclaw) ecosystem. Zero cloud dependencies — runs locally with SQLite.
+Aplicativo de agendamento e gestão de negócios para salões, spas, barbearias, estúdios de tatuagem e qualquer negócio baseado em agendamentos. Parte do ecossistema [OpenClaw](https://github.com/openclaw/openclaw). Zero dependências de nuvem — roda localmente com SQLite.
 
-Built with **Preact + Tailwind CSS v4 + shadcn/ui + Hono + SQLite**. Ships with a day calendar with staff columns, appointment scheduling, client database, service catalog, product inventory, and blocked time slots.
+Construído com **Preact + Tailwind CSS v4 + shadcn/ui + Hono + SQLite**. Inclui calendário diário com colunas de equipe, agendamento de compromissos, banco de dados de clientes, catálogo de serviços, estoque de produtos e horários bloqueados.
 
-## What Is It?
+## O Que É?
 
-Open Salon is a production-ready appointment scheduling platform designed for the OpenClaw community. Think of it as an open-source alternative to **Salonist**, **Fresha**, **Square Appointments**, **Vagaro**, or **Booksy** — a complete booking and staff management system you can self-host, customize, and embed in any SaaS product.
+Open Salon é uma plataforma de agendamento pronta para produção, projetada para a comunidade OpenClaw. Pense nele como uma alternativa open-source ao **Salonist**, **Fresha**, **Square Appointments**, **Vagaro** ou **Booksy** — um sistema completo de agendamento e gestão de equipe que você pode auto-hospedar, customizar e incorporar em qualquer produto SaaS.
 
-Unlike Salonist or Fresha, this runs entirely on your own infrastructure. No per-user fees, no booking commissions, no vendor lock-in. Manage your entire appointment-based operation from scheduling to inventory.
+Diferente do Salonist ou Fresha, este roda inteiramente na sua própria infraestrutura. Sem taxas por usuário, sem comissões por agendamento, sem dependência de fornecedor. Gerencie toda a sua operação baseada em agendamentos, do agendamento ao estoque.
 
-## Built for Every Appointment-Based Business
+## Feito para Negócios Baseados em Agendamentos
 
-Open Salon is **vertical-agnostic** — configure services, pricing, and staff for any industry:
+Open Salon é **agnóstico de vertical** — configure serviços, preços e equipe para qualquer indústria:
 
-| Industry | Example Services |
-|----------|-----------------|
-| **Barbershops** | Haircut, beard trim, shave, lineup, hair coloring, kids cut |
-| **Hair Salons** | Cut & style, blowout, balayage, highlights, keratin treatment, extensions |
-| **Spas & Massage** | Swedish massage, deep tissue, hot stone, facial, body wrap, aromatherapy |
-| **Tattoo Studios** | Consultation, small tattoo, large piece, cover-up, touch-up, piercing |
-| **Nail Salons** | Manicure, pedicure, gel nails, acrylic, nail art, dip powder |
-| **Lash & Brow Studios** | Lash extensions, lash lift, brow lamination, microblading, tinting |
-| **Med Spas & Aesthetics** | Botox, fillers, chemical peel, laser treatment, microneedling, IV therapy |
-| **Personal Trainers & Gyms** | PT session, group class, assessment, nutrition consult, recovery session |
-| **Yoga & Pilates Studios** | Group class, private session, workshop, teacher training, meditation |
-| **Physiotherapy & Chiropractic** | Initial assessment, follow-up, manual therapy, dry needling, rehab session |
-| **Tutoring & Coaching** | 1-on-1 session, group session, assessment, exam prep, mentoring |
-| **Pet Grooming** | Bath & brush, full groom, nail trim, teeth cleaning, de-shedding, puppy intro |
+| Indústria | Exemplos de Serviços |
+|-----------|---------------------|
+| **Barbearias** | Corte de cabelo, barba, Navalha, alinhamento, coloração, corte infantil |
+| **Salões de Cabelo** | Corte e penteado, escova, balayage, luzes, tratamento de queratina, extensões |
+| **Spas e Massagens** | Massagem sueca, massagem profunda, pedra quente, facial, envolvimento corporal, aromaterapia |
+| **Estúdios de Tatuagem** | Consulta, tattoo pequena, peça grande, cobertura, retoques, piercing |
+| **Salões de Unhas** | Manicure, pedicure, unhas em gel, acrílico, nail art, dip powder |
+| **Estúdios de Cílios e Sobrancelhas** | Extensão de cílios, lift de cílios, laminação de sobrancelhas, microblading, tingimento |
+| **Med Spas e Estética** | Botox, preenchimentos, peel químico, tratamento a laser, microneedling, terapia IV |
+| **Personal Trainers e Academias** | Sessão de PT, aula em grupo, avaliação, consulta nutricional, sessão de recuperação |
+| **Estúdios de Yoga e Pilates** | Aula em grupo, sessão particular, workshop, formação de professores, meditação |
+| **Fisioterapia e Quiropraxia** | Avaliação inicial, retorno, terapia manual, dry needling, sessão de reabilitação |
+| **Repetição e Coaching** | Sessão individual, sessão em grupo, avaliação, preparação para provas, mentoria |
+| **Banho e Tosa de Pets** | Banho e escovação, tosa completa, corte de unhas, limpeza dentária, dessedimentação, introdução para filhotes |
 
-## Features
+## Funcionalidades
 
-- **Day calendar view** — visual schedule with staff columns, colored appointment blocks, and day navigation (like Salonist/Square)
-- **Appointment booking** — create bookings with client, staff, date/time, and multiple services; auto-calculates duration and total price
-- **Blocked time slots** — mark breaks, lunch hours, or days off per staff member directly on the calendar
-- **Client management** — full database with contact info, notes, preferences, and appointment history
-- **Staff management** — team directory with color coding, titles/roles, activate/deactivate, and appointment counts
-- **Service catalog** — configurable services with duration, price, color, and category grouping
-- **Product inventory** — track retail products with cost/price, stock levels, low stock alerts, brand, and SKU
-- **Multi-service bookings** — select multiple services per appointment with automatic duration and price calculation
-- **Status workflow** — booked → confirmed → in progress → completed (or cancelled/no show)
-- **Activity notes** — timestamped notes on every appointment for internal communication
-- **Dashboard** — at-a-glance KPIs: today's appointments, upcoming count, revenue, client count, low stock alerts
-- **Search & filter** — find appointments by status, search clients by name/email/phone
-- **URL routing** — bookmarkable pages (`/calendar`, `/appointments/123`, `/clients`, `/staff`, `/services`, `/products`)
-- **Dual-mode UI** — human-optimized + AI-agent-optimized (`?agent`)
+- **Visualização de calendário diário** — agenda visual com colunas de equipe, blocos de agendamento coloridos e navegação por dia (como Salonist/Square)
+- **Agendamento de compromissos** — crie compromissos com cliente, equipe, data/hora e múltiplos serviços; calcula automaticamente duração e preço total
+- **Horários bloqueados** — marque pausas, horário de almoço ou dias de folga por membro da equipe diretamente no calendário
+- **Gestão de clientes** — banco de dados completo com informações de contato, observações, preferências e histórico de agendamentos
+- **Gestão de equipe** — diretório da equipe com codificação por cores, cargos/funções, ativar/desativar e contagem de agendamentos
+- **Catálogo de serviços** — serviços configuráveis com duração, preço, cor e agrupamento por categoria
+- **Estoque de produtos** — rastreie produtos de varejo com custo/preço, níveis de estoque, alertas de estoque baixo, marca e SKU
+- **Agendamentos multi-serviço** — selecione múltiplos serviços por agendamento com cálculo automático de duração e preço
+- **Fluxo de status** — agendado → confirmado → em andamento → concluído (ou cancelado/não compareceu)
+- **Notas de atividade** — notas com carimbo de data/hora em cada agendamento para comunicação interna
+- **Painel** — KPIs de relance: agendamentos de hoje, contagem de próximos, faturamento, contagem de clientes, alertas de estoque baixo
+- **Busca e filtro** — encontre agendamentos por status, busque clientes por nome/e-mail/telefone
+- **Roteamento por URL** — páginas favoritáveis (`/calendar`, `/appointments/123`, `/clients`, `/staff`, `/services`, `/products`)
+- **UI modo duplo** — otimizada para humanos + otimizada para agentes de IA (`?agent`)
 
-## Quickstart
+## Início Rápido
 
 ```bash
 git clone https://github.com/clawnify/open-salon.git
@@ -57,98 +57,98 @@ pnpm install
 pnpm run dev
 ```
 
-Open `http://localhost:5174` in your browser. Data persists in `data.db`.
+Abra `http://localhost:5174` no seu navegador. Os dados persistem em `data.db`.
 
-### Agent Mode (for OpenClaw / Claude Code)
+### Modo Agente (para OpenClaw / Claude Code)
 
-Append `?agent` to the URL:
+Adicione `?agent` à URL:
 
 ```
 http://localhost:5174/?agent
 ```
 
-This activates an agent-friendly UI with:
-- Explicit delete/action buttons always visible (no hover-to-reveal)
-- Large click targets for reliable browser automation
-- All controls accessible without drag interactions
+Isso ativa uma UI amigável a agentes com:
+- Botões de excluir/ação sempre visíveis (sem hover para revelar)
+- Alvos de clique grandes para automação confiável do navegador
+- Todos os controles acessíveis sem interações de arrastar
 
-### Using with Claude Code
+### Usando com Claude Code
 
-Claude Code can interact with the salon through the REST API:
+O Claude Code pode interagir com o salão através da API REST:
 
 ```bash
-# Create a client
+# Criar um cliente
 curl -X POST http://localhost:3004/api/clients \
   -H "Content-Type: application/json" \
-  -d '{"name": "Jane Smith", "phone": "555-0100", "email": "jane@example.com"}'
+  -d '{"name": "Maria Silva", "phone": "555-0100", "email": "maria@exemplo.com"}'
 
-# Book an appointment with multiple services
+# Agendar um compromisso com múltiplos serviços
 curl -X POST http://localhost:3004/api/appointments \
   -H "Content-Type: application/json" \
   -d '{"client_id": 1, "staff_id": 1, "scheduled_date": "2025-01-15", "start_time": "10:00", "service_ids": [1, 2]}'
 
-# Block a time slot for lunch
+# Bloquear um horário para almoço
 curl -X POST http://localhost:3004/api/blocked-slots \
   -H "Content-Type: application/json" \
-  -d '{"staff_id": 1, "blocked_date": "2025-01-15", "start_time": "12:00", "end_time": "13:00", "reason": "Lunch"}'
+  -d '{"staff_id": 1, "blocked_date": "2025-01-15", "start_time": "12:00", "end_time": "13:00", "reason": "Almoço"}'
 ```
 
-## Tech Stack
+## Stack Tecnológica
 
-| Layer | Technology |
-|-------|-----------|
+| Camada | Tecnologia |
+|--------|-----------|
 | **Frontend** | Preact, TypeScript, Vite |
-| **Styling** | Tailwind CSS v4, shadcn/ui |
+| **Estilo** | Tailwind CSS v4, shadcn/ui |
 | **Backend** | Hono, Node.js |
-| **Database** | SQLite (better-sqlite3) |
-| **Validation** | Zod, @hono/zod-openapi |
-| **Icons** | Lucide |
+| **Banco de Dados** | SQLite (better-sqlite3) |
+| **Validação** | Zod, @hono/zod-openapi |
+| **Ícones** | Lucide |
 
-### Prerequisites
+### Pré-requisitos
 
 - Node.js 20+
-- pnpm (or npm/yarn)
+- pnpm (ou npm/yarn)
 
-## Architecture
+## Arquitetura
 
 ```
 src/
   server/
-    schema.sql  — SQLite schema (clients, staff, services, appointments, products)
-    db.ts       — SQLite wrapper (query, get, run, transaction)
-    index.ts    — Hono REST API with OpenAPI schemas
-    dev.ts      — Dev server with static file serving
+    schema.sql  — Schema SQLite (clients, staff, services, appointments, products)
+    db.ts       — Wrapper SQLite (query, get, run, transaction)
+    index.ts    — API REST Hono com schemas OpenAPI
+    dev.ts      — Servidor de desenvolvimento com service de arquivos estáticos
   client/
-    app.tsx           — Root component with URL routing
-    context.tsx       — App context (state interface)
+    app.tsx           — Componente raiz com roteamento por URL
+    context.tsx       — Contexto da aplicação (interface de estado)
     lib/
-      utils.ts        — cn() utility for Tailwind class merging
+      utils.ts        — Utilitário cn() para merge de classes Tailwind
     hooks/
-      use-app.ts      — State management, CRUD operations, API calls
-      use-router.ts   — pushState URL routing
+      use-app.ts      — Gestão de estado, operações CRUD, chamadas API
+      use-router.ts   — Roteamento por pushState URL
     components/
-      ui/                    — shadcn/ui primitives (button, card, dialog, etc.)
-      sidebar.tsx            — Navigation with appointment/client counts
-      dashboard.tsx          — Stats cards + today's schedule
-      calendar-view.tsx      — Day calendar with staff columns
-      appointment-list.tsx   — Paginated appointment list with status filters
-      appointment-detail.tsx — Appointment detail with services, notes
-      create-appointment.tsx — New booking dialog with service picker
-      client-list.tsx        — Paginated client list with search
-      client-detail.tsx      — Client profile + appointment history
-      create-client.tsx      — New client dialog
-      staff-list.tsx         — Staff card grid with color avatars
-      create-staff.tsx       — New staff dialog with color picker
-      service-list.tsx       — Service catalog with category grouping
-      create-service.tsx     — New service dialog
-      product-list.tsx       — Product inventory with low stock alerts
-      create-product.tsx     — New product dialog
-      status-badge.tsx       — Appointment status badges
-      pagination.tsx         — Pagination controls
-      error-banner.tsx       — Toast-style error display
+      ui/                    — Primitivas shadcn/ui (button, card, dialog, etc.)
+      sidebar.tsx            — Navegação com contagens de agendamento/clientes
+      dashboard.tsx          — Cards de estatísticas + agenda de hoje
+      calendar-view.tsx      — Calendário diário com colunas de equipe
+      appointment-list.tsx   — Lista paginada de agendamentos com filtros de status
+      appointment-detail.tsx — Detalhe do agendamento com serviços, observações
+      create-appointment.tsx — Dialog de novo agendamento com seletor de serviços
+      client-list.tsx        — Lista paginada de clientes com busca
+      client-detail.tsx      — Perfil do cliente + histórico de agendamentos
+      create-client.tsx      — Dialog de novo cliente
+      staff-list.tsx         — Grid de cards da equipe com avatares coloridos
+      create-staff.tsx       — Dialog de novo membro da equipe com seletor de cor
+      service-list.tsx       — Catálogo de serviços com agrupamento por categoria
+      create-service.tsx     — Dialog de novo serviço
+      product-list.tsx       — Estoque de produtos com alertas de estoque baixo
+      create-product.tsx     — Dialog de novo produto
+      status-badge.tsx       — Badges de status do agendamento
+      pagination.tsx         — Controles de paginação
+      error-banner.tsx       — Exibição de erro estilo toast
 ```
 
-### Data Model
+### Modelo de Dados
 
 ```sql
 clients              (id, name, email, phone, notes)
@@ -164,49 +164,49 @@ products             (id, name, brand, category, sku, price, cost, stock,
                       low_stock_alert)
 ```
 
-### API Endpoints
+### Endpoints da API
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/stats` | Dashboard statistics |
-| GET | `/api/calendar` | Appointments + blocked slots for date range |
-| GET | `/api/appointments` | List appointments (paginated, filterable) |
-| POST | `/api/appointments` | Create appointment with service IDs |
-| GET | `/api/appointments/:id` | Appointment detail with services and notes |
-| PUT | `/api/appointments/:id` | Update appointment |
-| DELETE | `/api/appointments/:id` | Delete appointment |
-| POST | `/api/appointments/:id/notes` | Add appointment note |
-| DELETE | `/api/notes/:id` | Delete a note |
-| GET | `/api/clients` | List clients (paginated, searchable) |
-| GET | `/api/clients/all` | All clients for lookup dropdowns |
-| POST | `/api/clients` | Create a client |
-| GET | `/api/clients/:id` | Client detail with appointment history |
-| PUT | `/api/clients/:id` | Update a client |
-| DELETE | `/api/clients/:id` | Delete a client |
-| GET | `/api/staff` | List staff with appointment counts |
-| GET | `/api/staff/all` | Active staff for lookup dropdowns |
-| POST | `/api/staff` | Create staff member |
-| PUT | `/api/staff/:id` | Update staff member |
-| DELETE | `/api/staff/:id` | Delete staff member |
-| GET | `/api/services` | List services |
-| POST | `/api/services` | Create a service |
-| PUT | `/api/services/:id` | Update a service |
-| DELETE | `/api/services/:id` | Delete a service |
-| POST | `/api/blocked-slots` | Create blocked time slot |
-| DELETE | `/api/blocked-slots/:id` | Delete blocked time slot |
-| GET | `/api/products` | List products (paginated, searchable) |
-| POST | `/api/products` | Create a product |
-| PUT | `/api/products/:id` | Update a product |
-| DELETE | `/api/products/:id` | Delete a product |
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| GET | `/api/stats` | Estatísticas do painel |
+| GET | `/api/calendar` | Agendamentos + horários bloqueados para período |
+| GET | `/api/appointments` | Listar agendamentos (paginado, filtrável) |
+| POST | `/api/appointments` | Criar agendamento com IDs de serviços |
+| GET | `/api/appointments/:id` | Detalhe do agendamento com serviços e observações |
+| PUT | `/api/appointments/:id` | Atualizar agendamento |
+| DELETE | `/api/appointments/:id` | Excluir agendamento |
+| POST | `/api/appointments/:id/notes` | Adicionar observação ao agendamento |
+| DELETE | `/api/notes/:id` | Excluir uma observação |
+| GET | `/api/clients` | Listar clientes (paginado, pesquisável) |
+| GET | `/api/clients/all` | Todos os clientes para dropdowns de busca |
+| POST | `/api/clients` | Criar um cliente |
+| GET | `/api/clients/:id` | Detalhe do cliente com histórico de agendamentos |
+| PUT | `/api/clients/:id` | Atualizar um cliente |
+| DELETE | `/api/clients/:id` | Excluir um cliente |
+| GET | `/api/staff` | Listar equipe com contagem de agendamentos |
+| GET | `/api/staff/all` | Equipe ativa para dropdowns de busca |
+| POST | `/api/staff` | Criar membro da equipe |
+| PUT | `/api/staff/:id` | Atualizar membro da equipe |
+| DELETE | `/api/staff/:id` | Excluir membro da equipe |
+| GET | `/api/services` | Listar serviços |
+| POST | `/api/services` | Criar um serviço |
+| PUT | `/api/services/:id` | Atualizar um serviço |
+| DELETE | `/api/services/:id` | Excluir um serviço |
+| POST | `/api/blocked-slots` | Criar horário bloqueado |
+| DELETE | `/api/blocked-slots/:id` | Excluir horário bloqueado |
+| GET | `/api/products` | Listar produtos (paginado, pesquisável) |
+| POST | `/api/products` | Criar um produto |
+| PUT | `/api/products/:id` | Atualizar um produto |
+| DELETE | `/api/products/:id` | Excluir um produto |
 
-## SEO Keywords
+## Palavras-chave SEO
 
-Open-source salon management software, free appointment booking software, open-source Salonist alternative, open-source Fresha alternative, free barbershop scheduling software, open-source Square Appointments alternative, open-source Vagaro alternative, free spa management software, open-source Booksy alternative, salon booking app, appointment scheduling software, staff scheduling software, beauty salon management, open-source booking system, free nail salon software, tattoo studio management, pet grooming software, self-hosted appointment booking, open-source salon POS, free yoga studio software, physiotherapy scheduling software, tutoring booking software, med spa management software.
+Software open-source de gestão de salão, software gratuito de agendamento, alternativa open-source ao Salonist, alternativa open-source ao Fresha, software gratuito de agendamento para barbearia, alternativa open-source ao Square Appointments, alternativa open-source ao Vagaro, software gratuito de gestão de spa, alternativa open-source ao Booksy, aplicativo de agendamento de salão, software de agendamento, software de escalonamento de equipe, gestão de salão de beleza, sistema de agendamento open-source, software gratuito para salão de unhas, gestão de estúdio de tatuagem, software de banho e tosa de pets, agendamento auto-hospedado, POS open-source de salão, software gratuito para estúdio de yoga, software de agendamento para fisioterapia, software de agendamento para repetição, software de gestão de med spa.
 
-## Community & Contributions
+## Comunidade e Contribuições
 
-This project is part of the [OpenClaw](https://github.com/openclaw/openclaw) ecosystem. Contributions are welcome — open an issue or submit a PR.
+Este projeto faz parte do ecossistema [OpenClaw](https://github.com/openclaw/openclaw). Contribuições são bem-vindas — abra uma issue ou envie um PR.
 
-## License
+## Licença
 
 AGPL-3.0

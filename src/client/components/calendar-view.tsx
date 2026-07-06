@@ -65,23 +65,23 @@ export function CalendarView() {
   return (
     <div className="flex h-full flex-col space-y-4 p-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Calendar</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Agenda</h1>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => setCalendarDate(todayStr)}>Today</Button>
+          <Button variant="outline" size="sm" onClick={() => setCalendarDate(todayStr)}>Hoje</Button>
           <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => shiftDay(-1)}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <span className="min-w-[200px] text-center text-sm font-semibold">
-            {dateObj.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric", year: "numeric" })}
+            {dateObj.toLocaleDateString("pt-BR", { weekday: "long", month: "short", day: "numeric", year: "numeric" })}
           </span>
           <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => shiftDay(1)}>
             <ChevronRight className="h-4 w-4" />
           </Button>
           <Button variant="outline" size="sm" onClick={() => setShowBlockForm(!showBlockForm)}>
-            <Ban className="mr-1 h-3.5 w-3.5" /> Block Time
+            <Ban className="mr-1 h-3.5 w-3.5" /> Bloquear Horário
           </Button>
           <Button size="sm" onClick={() => setShowCreate(true)}>
-            <Plus className="mr-1 h-3.5 w-3.5" /> New Booking
+            <Plus className="mr-1 h-3.5 w-3.5" /> Novo Agendamento
           </Button>
         </div>
       </div>
@@ -90,25 +90,25 @@ export function CalendarView() {
         <Card>
           <CardContent className="flex items-end gap-3 p-4">
             <div className="space-y-1">
-              <Label className="text-xs">Staff</Label>
+              <Label className="text-xs">Equipe</Label>
               <select className="h-9 rounded-md border border-input bg-background px-3 text-sm" value={blockStaff} onChange={(e) => setBlockStaff((e.target as HTMLSelectElement).value)}>
-                <option value="">Select staff...</option>
+                <option value="">Selecionar equipe...</option>
                 {staffLookup.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
               </select>
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">Start</Label>
+              <Label className="text-xs">Início</Label>
               <Input type="time" className="h-9 w-28" value={blockStart} onChange={(e) => setBlockStart((e.target as HTMLInputElement).value)} />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">End</Label>
+              <Label className="text-xs">Fim</Label>
               <Input type="time" className="h-9 w-28" value={blockEnd} onChange={(e) => setBlockEnd((e.target as HTMLInputElement).value)} />
             </div>
             <div className="flex-1 space-y-1">
-              <Label className="text-xs">Reason</Label>
-              <Input className="h-9" placeholder="e.g. Lunch break" value={blockReason} onChange={(e) => setBlockReason((e.target as HTMLInputElement).value)} />
+              <Label className="text-xs">Motivo</Label>
+              <Input className="h-9" placeholder="ex: Intervalo para almoço" value={blockReason} onChange={(e) => setBlockReason((e.target as HTMLInputElement).value)} />
             </div>
-            <Button size="sm" onClick={handleAddBlock}>Add Block</Button>
+            <Button size="sm" onClick={handleAddBlock}>Adicionar Bloqueio</Button>
           </CardContent>
         </Card>
       )}
@@ -158,7 +158,7 @@ export function CalendarView() {
                         className="absolute inset-x-1 z-10 flex items-center justify-between rounded bg-muted/60 px-2 text-xs text-muted-foreground"
                         style={{ top, height: Math.max(height, 20) }}
                       >
-                        <span className="truncate">{block.reason || "Blocked"}</span>
+                        <span className="truncate">{block.reason || "Bloqueado"}</span>
                         <button
                           className="flex-shrink-0 rounded p-0.5 hover:bg-muted"
                           onClick={(e) => { e.stopPropagation(); deleteBlockedSlot(block.id); }}
@@ -210,7 +210,7 @@ export function CalendarView() {
               <div className="flex min-w-[180px] flex-1 flex-col border-r last:border-r-0">
                 <div className="flex items-center justify-center gap-2 border-b bg-muted/20 px-3 py-2.5">
                   <span className="inline-block h-3 w-3 rounded-full bg-muted-foreground/40" />
-                  <span className="text-sm font-medium text-muted-foreground">Unassigned</span>
+                  <span className="text-sm font-medium text-muted-foreground">Sem Atribuição</span>
                 </div>
                 <div className="relative" style={{ height: totalHeight }}>
                   {HOURS.map((h) => (
