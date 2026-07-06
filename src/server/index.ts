@@ -523,7 +523,7 @@ app.get("/api/public/services", async (c) => {
 // ── List active staff ──
 app.get("/api/public/staff", async (c) => {
   const staff = await q(
-    "SELECT id, name, photo_url, bio, specialties, title, color FROM staff WHERE active = 1 ORDER BY name ASC",
+    "SELECT id, name, COALESCE(photo_url, '') as photo_url, COALESCE(bio, '') as bio, COALESCE(specialties, '') as specialties, title, color FROM staff WHERE active = 1 ORDER BY name ASC",
   );
   return c.json({ staff });
 });
